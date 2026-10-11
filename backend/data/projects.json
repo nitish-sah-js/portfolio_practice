@@ -1,0 +1,110 @@
+[
+  {
+    "id": "f8565d66-3459-4c83-b62f-2aa4ac583148",
+    "title": "shreyas",
+    "category": "dfddf",
+    "description": "",
+    "price": "8000",
+    "thumbnail": "",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:20:47.248Z"
+  },
+  {
+    "id": "1",
+    "title": "Motion Graphics Reference",
+    "category": "Motion Graphics",
+    "description": "Reference for animated graphics and visual effects.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.254Z"
+  },
+  {
+    "id": "2",
+    "title": "Real Estate Video Reference",
+    "category": "Real Estate",
+    "description": "Reference for property tours and interior showcases.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.255Z"
+  },
+  {
+    "id": "3",
+    "title": "Reels Editing Reference",
+    "category": "Reels",
+    "description": "Reference for short-form social media editing.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.255Z"
+  },
+  {
+    "id": "4",
+    "title": "UGC Ads Reference",
+    "category": "UGC Ads",
+    "description": "Reference for creator-style product advertisements.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.255Z"
+  },
+  {
+    "id": "5",
+    "title": "Wedding Film Reference",
+    "category": "Wedding",
+    "description": "Reference for cinematic wedding highlights.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.255Z"
+  },
+  {
+    "id": "6",
+    "title": "Travel Film Reference",
+    "category": "Travels",
+    "description": "Reference for travel storytelling and cinematic visuals.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.255Z"
+  },
+  {
+    "id": "7",
+    "title": "Promotional Video Reference",
+    "category": "Promotions",
+    "description": "Reference for promotional and brand videos.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.255Z"
+  },
+  {
+    "id": "8",
+    "title": "Before and After Reference",
+    "category": "Before & After",
+    "description": "Reference for comparing original and edited footage.",
+    "price": "",
+    "thumbnail": "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1000&q=85",
+    "images": [],
+    "videos": [],
+    "youtubeUrl": "",
+    "createdAt": "2026-10-11T16:14:29.255Z"
+  }
+]

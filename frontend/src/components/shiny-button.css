@@ -1,0 +1,136 @@
+/* Shiny Button — Blue/Purple Animated Glow */
+
+.shiny-cta {
+  --button-bg: #000000dd;
+  --button-text: #fdfafbf9;
+  --glow-blue: #441b42;
+  --glow-purple: #9f0da786;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  min-width: 190px;
+  padding: 18px 32px;
+
+  color: var(--button-text);
+  background: var(--button-bg);
+
+  border: 1px solid rgba(5, 147, 160, 0.8);
+  border-radius: 999px;
+
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 0 8px rgba(13, 153, 196, 0.4),
+    inset 0 0 12px rgba(30, 0, 255, 0.12);
+
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+/* Moving blue and purple light */
+.shiny-cta::before {
+  content: "";
+  position: absolute;
+  inset: -150%;
+
+  z-index: -2;
+  pointer-events: none;
+
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 260deg,
+    #0800ff 290deg,
+    #6825ff 315deg,
+    #b5a5ff 330deg,
+    #0800ff 345deg,
+    transparent 360deg
+  );
+
+  animation: shiny-blue-rotation 2.8s linear infinite;
+}
+
+/* Keep the button center black */
+.shiny-cta::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+
+  z-index: -1;
+  pointer-events: none;
+
+  background: var(--button-bg);
+  border-radius: inherit;
+}
+
+/* Button text */
+.shiny-cta > span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Continuous glowing border */
+@keyframes shiny-blue-rotation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stronger blue/purple glow on hover */
+.shiny-cta:hover {
+  color: #ffffff;
+
+  box-shadow:
+    0 0 12px rgba(35, 0, 255, 0.75),
+    0 0 28px rgba(90, 30, 255, 0.45),
+    inset 0 0 18px rgba(30, 0, 255, 0.18);
+
+  transform: translateY(-1px);
+}
+
+/* Accessible keyboard focus */
+.shiny-cta:focus-visible {
+  outline: 2px solid #8c79ff;
+  outline-offset: 5px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .shiny-cta {
+    min-width: 0;
+    padding: 16px 20px;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .shiny-cta::before {
+    animation: none;
+  }
+
+  .shiny-cta {
+    transition: none;
+  }
+}

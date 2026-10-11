@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -14,16 +14,13 @@ import {
 } from "lucide-react";
 import { categories } from "../data/projects";
 import {
-  createProject,
-  deleteProject,
-  fetchProjects,
   getSavedPassword,
   login,
-  reorderProjects,
+  projectsApi,
   savePassword,
-  updateProject,
   uploadFiles,
 } from "../data/api";
+import ServicesManager from "./EditorServices";
 import "./Editor.css";
 
 const emptyProject = {
@@ -108,34 +105,90 @@ function EditorLogin({ onLogin }) {
 }
 
 function EditorDashboard({ onLogout }) {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState(emptyProject);
-  const [editingId, setEditingId] = useState(null);
-  const [uploading, setUploading] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [tab, setTab] = useState("work");
   const [message, setMessage] = useState(null);
 
-  useEffect(() => {
-    fetchProjects()
-      .then(setProjects)
-      .catch((err) => showMessage(err.message, true))
-      .finally(() => setLoading(false));
+  // Stable so the managers can load their data once on mount.
+  const showMessage = useCallback((text, isError = false) => {
+    setMessage(text ? { text, isError } : null);
   }, []);
-
-  const categoryOptions = [
-    ...new Set([...categories, ...projects.map((p) => p.category).filter(Boolean)]),
-  ];
-
-  function showMessage(text, isError = false) {
-    setMessage({ text, isError });
-  }
 
   // A 401 means the saved password is no longer valid — send back to login.
   function handleError(err) {
     if (err.status === 401) return onLogout();
     showMessage(err.message, true);
   }
+
+  function switchTab(next) {
+    setTab(next);
+    setMessage(null);
+  }
+
+  const toast = message && (
+    <p className={message.isError ? "editor-toast editor-toast-error" : "editor-toast"}>
+      {message.text}
+      <button onClick={() => setMessage(null)} aria-label="Dismiss">
+        <X size={14} />
+      </button>
+    </p>
+  );
+
+  const Manager = tab === "work" ? WorkManager : ServicesManager;
+
+  return (
+    <main className="editor-page">
+      <header className="editor-topbar">
+        <a href="/" className="editor-logo">
+          niikzz<span>static.in</span>
+        </a>
+        <div className="editor-topbar-actions">
+          <a href={tab === "work" ? "/#portfolio" : "/#services"} className="editor-ghost">
+            View site <ArrowUpRight size={15} />
+          </a>
+          <button className="editor-ghost" onClick={onLogout}>
+            <LogOut size={15} /> Log out
+          </button>
+        </div>
+      </header>
+
+      <nav className="editor-tabs" aria-label="Editor sections">
+        <button
+          className={tab === "work" ? "editor-tab active" : "editor-tab"}
+          onClick={() => switchTab("work")}
+        >
+          Work
+        </button>
+        <button
+          className={tab === "services" ? "editor-tab active" : "editor-tab"}
+          onClick={() => switchTab("services")}
+        >
+          Services
+        </button>
+      </nav>
+
+      <Manager toast={toast} showMessage={showMessage} handleError={handleError} />
+    </main>
+  );
+}
+
+function WorkManager({ toast, showMessage, handleError }) {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(emptyProject);
+  const [editingId, setEditingId] = useState(null);
+  const [uploading, setUploading] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    projectsApi.list()
+      .then(setProjects)
+      .catch((err) => showMessage(err.message, true))
+      .finally(() => setLoading(false));
+  }, [showMessage]);
+
+  const categoryOptions = [
+    ...new Set([...categories, ...projects.map((p) => p.category).filter(Boolean)]),
+  ];
 
   function setField(name, value) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -149,7 +202,7 @@ function EditorDashboard({ onLogout }) {
   function startEditing(project) {
     setForm({ ...emptyProject, ...project, images: project.images || [], videos: project.videos || [] });
     setEditingId(project.id);
-    setMessage(null);
+    showMessage(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -184,11 +237,11 @@ function EditorDashboard({ onLogout }) {
     setSaving(true);
     try {
       if (editingId) {
-        const updated = await updateProject(editingId, form);
+        const updated = await projectsApi.update(editingId, form);
         setProjects((list) => list.map((p) => (p.id === editingId ? updated : p)));
         showMessage("Work updated. It's live on the homepage.");
       } else {
-        const created = await createProject(form);
+        const created = await projectsApi.create(form);
         setProjects((list) => [created, ...list]);
         showMessage("Work added. It's live on the homepage.");
       }
@@ -203,7 +256,7 @@ function EditorDashboard({ onLogout }) {
   async function handleDelete(project) {
     if (!window.confirm(`Delete "${project.title}"? This can't be undone.`)) return;
     try {
-      await deleteProject(project.id);
+      await projectsApi.remove(project.id);
       setProjects((list) => list.filter((p) => p.id !== project.id));
       if (editingId === project.id) resetForm();
       showMessage("Work deleted.");
@@ -219,28 +272,14 @@ function EditorDashboard({ onLogout }) {
     [next[index], next[target]] = [next[target], next[index]];
     setProjects(next);
     try {
-      await reorderProjects(next.map((p) => p.id));
+      await projectsApi.reorder(next.map((p) => p.id));
     } catch (err) {
       handleError(err);
     }
   }
 
   return (
-    <main className="editor-page">
-      <header className="editor-topbar">
-        <a href="/" className="editor-logo">
-          niikzz<span>static.in</span>
-        </a>
-        <div className="editor-topbar-actions">
-          <a href="/#portfolio" className="editor-ghost">
-            View site <ArrowUpRight size={15} />
-          </a>
-          <button className="editor-ghost" onClick={onLogout}>
-            <LogOut size={15} /> Log out
-          </button>
-        </div>
-      </header>
-
+    <>
       <section className="editor-heading">
         <div>
           <p className="editor-label">EDITOR / MANAGE WORK</p>
@@ -256,14 +295,7 @@ function EditorDashboard({ onLogout }) {
         </p>
       </section>
 
-      {message && (
-        <p className={message.isError ? "editor-toast editor-toast-error" : "editor-toast"}>
-          {message.text}
-          <button onClick={() => setMessage(null)} aria-label="Dismiss">
-            <X size={14} />
-          </button>
-        </p>
-      )}
+      {toast}
 
       <div className="editor-layout">
         <form className="editor-form" onSubmit={handleSubmit}>
@@ -461,7 +493,7 @@ function EditorDashboard({ onLogout }) {
           ))}
         </aside>
       </div>
-    </main>
+    </>
   );
 }
 

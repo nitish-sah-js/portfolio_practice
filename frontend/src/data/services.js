@@ -1,12 +1,3 @@
-import {
-  Smartphone,
-  Clapperboard,
-  Film,
-  Heart,
-  Megaphone,
-  Palette,
-} from "lucide-react";
-
 export const services = [
   {
     id: 1,
@@ -14,7 +5,7 @@ export const services = [
     category: "SOCIAL MEDIA",
     description:
       "Engaging short videos with smooth transitions, captions, effects, and beat synchronization.",
-    icon: Smartphone,
+    icon: "Smartphone",
     startingPrice: "₹499",
   },
   {
@@ -23,7 +14,7 @@ export const services = [
     category: "CONTENT CREATION",
     description:
       "Professional YouTube videos with clean cuts, subtitles, sound design, and engaging storytelling.",
-    icon: Clapperboard,
+    icon: "Clapperboard",
     startingPrice: "₹999",
   },
   {
@@ -32,7 +23,7 @@ export const services = [
     category: "VISUAL STORYTELLING",
     description:
       "Beautiful cinematic edits with color grading, sound design, and carefully crafted transitions.",
-    icon: Film,
+    icon: "Film",
     startingPrice: "₹1,499",
   },
   {
@@ -41,7 +32,7 @@ export const services = [
     category: "SPECIAL MOMENTS",
     description:
       "Emotional wedding highlights and memorable films that preserve important moments.",
-    icon: Heart,
+    icon: "Heart",
     startingPrice: "₹2,499",
   },
   {
@@ -50,7 +41,7 @@ export const services = [
     category: "BRAND CONTENT",
     description:
       "Creative advertisements and promotional videos designed to showcase products and brands.",
-    icon: Megaphone,
+    icon: "Megaphone",
     startingPrice: "₹1,999",
   },
   {
@@ -59,7 +50,7 @@ export const services = [
     category: "POST-PRODUCTION",
     description:
       "Enhance your footage with consistent colors, cinematic tones, and professional finishing.",
-    icon: Palette,
+    icon: "Palette",
     startingPrice: "₹799",
   },
 ];

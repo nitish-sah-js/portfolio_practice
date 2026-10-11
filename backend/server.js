@@ -11,7 +11,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 5000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me";
 const DATA_DIR = path.join(__dirname, "data");
-const DATA_FILE = path.join(DATA_DIR, "projects.json");
 const UPLOAD_DIR = path.join(__dirname, "uploads");
 const FRONTEND_DIST = path.join(__dirname, "..", "frontend", "dist");
 
@@ -26,9 +25,11 @@ mkdirSync(UPLOAD_DIR, { recursive: true });
 
 /* ---------- Storage helpers ---------- */
 
-async function readProjects() {
+const dataFile = (collection) => path.join(DATA_DIR, `${collection}.json`);
+
+async function readCollection(collection) {
   try {
-    return JSON.parse(await fs.readFile(DATA_FILE, "utf8"));
+    return JSON.parse(await fs.readFile(dataFile(collection), "utf8"));
   } catch (error) {
     if (error.code === "ENOENT") return [];
     throw error;
@@ -36,19 +37,20 @@ async function readProjects() {
 }
 
 // Write to a temp file then rename, so a crash never leaves half-written JSON.
-async function writeProjects(projects) {
-  const tempFile = `${DATA_FILE}.tmp`;
-  await fs.writeFile(tempFile, JSON.stringify(projects, null, 2));
-  await fs.rename(tempFile, DATA_FILE);
+async function writeCollection(collection, items) {
+  const file = dataFile(collection);
+  const tempFile = `${file}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(items, null, 2));
+  await fs.rename(tempFile, file);
 }
 
-function cleanProject(input) {
-  const asList = (value) =>
-    Array.isArray(value)
-      ? value.filter((item) => typeof item === "string" && item.trim())
-      : [];
-  const asText = (value) => (typeof value === "string" ? value.trim() : "");
+const asList = (value) =>
+  Array.isArray(value)
+    ? value.filter((item) => typeof item === "string" && item.trim())
+    : [];
+const asText = (value) => (typeof value === "string" ? value.trim() : "");
 
+function cleanProject(input) {
   return {
     title: asText(input.title),
     category: asText(input.category),
@@ -61,6 +63,29 @@ function cleanProject(input) {
   };
 }
 
+function cleanService(input) {
+  return {
+    title: asText(input.title),
+    category: asText(input.category),
+    description: asText(input.description),
+    startingPrice: asText(input.startingPrice),
+    icon: asText(input.icon),
+  };
+}
+
+// Each editable homepage section is one JSON file in /data.
+const COLLECTIONS = {
+  projects: cleanProject,
+  services: cleanService,
+};
+
+function collectionParam(req, res, next) {
+  if (!Object.hasOwn(COLLECTIONS, req.params.collection)) {
+    return res.status(404).json({ error: "Unknown section." });
+  }
+  next();
+}
+
 // Only removes files that live in our uploads folder.
 async function deleteUploads(urls) {
   for (const url of urls) {
@@ -70,8 +95,8 @@ async function deleteUploads(urls) {
   }
 }
 
-function mediaOf(project) {
-  return [project.thumbnail, ...(project.images || []), ...(project.videos || [])];
+function mediaOf(item) {
+  return [item.thumbnail, ...(item.images || []), ...(item.videos || [])];
 }
 
 /* ---------- Auth ---------- */
@@ -112,9 +137,9 @@ const app = express();
 app.use(express.json({ limit: "1mb" }));
 app.use("/uploads", express.static(UPLOAD_DIR, { maxAge: "7d" }));
 
-app.get("/api/projects", async (req, res, next) => {
+app.get("/api/:collection", collectionParam, async (req, res, next) => {
   try {
-    res.json(await readProjects());
+    res.json(await readCollection(req.params.collection));
   } catch (error) {
     next(error);
   }
@@ -137,36 +162,56 @@ app.post("/api/upload", requireAdmin, upload.array("files", 20), (req, res) => {
   });
 });
 
-app.post("/api/projects", requireAdmin, async (req, res, next) => {
+app.post("/api/:collection", requireAdmin, collectionParam, async (req, res, next) => {
   try {
-    const data = cleanProject(req.body || {});
+    const { collection } = req.params;
+    const data = COLLECTIONS[collection](req.body || {});
     if (!data.title) return res.status(400).json({ error: "Title is required." });
 
-    const projects = await readProjects();
-    const project = { id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() };
-    projects.unshift(project);
-    await writeProjects(projects);
-    res.status(201).json(project);
+    const items = await readCollection(collection);
+    const item = { id: crypto.randomUUID(), ...data, createdAt: new Date().toISOString() };
+    // New work goes first; new services go at the end, like adding a card.
+    if (collection === "projects") items.unshift(item);
+    else items.push(item);
+    await writeCollection(collection, items);
+    res.status(201).json(item);
   } catch (error) {
     next(error);
   }
 });
 
-app.put("/api/projects/:id", requireAdmin, async (req, res, next) => {
+// Registered before "/:id" so "order" is not treated as an id.
+app.put("/api/:collection/order", requireAdmin, collectionParam, async (req, res, next) => {
   try {
-    const data = cleanProject(req.body || {});
+    const { collection } = req.params;
+    const ids = Array.isArray(req.body?.ids) ? req.body.ids.map(String) : [];
+    const items = await readCollection(collection);
+    const byId = new Map(items.map((item) => [String(item.id), item]));
+    const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
+    const rest = items.filter((item) => !ids.includes(String(item.id)));
+    await writeCollection(collection, [...ordered, ...rest]);
+    res.json({ ok: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/:collection/:id", requireAdmin, collectionParam, async (req, res, next) => {
+  try {
+    const { collection, id } = req.params;
+    const data = COLLECTIONS[collection](req.body || {});
     if (!data.title) return res.status(400).json({ error: "Title is required." });
 
-    const projects = await readProjects();
-    const index = projects.findIndex((project) => String(project.id) === req.params.id);
-    if (index === -1) return res.status(404).json({ error: "Project not found." });
+    const items = await readCollection(collection);
+    const index = items.findIndex((item) => String(item.id) === id);
+    if (index === -1) return res.status(404).json({ error: "Not found." });
 
-    const previous = projects[index];
+    const previous = items[index];
     const updated = { ...previous, ...data, updatedAt: new Date().toISOString() };
-    projects[index] = updated;
-    await writeProjects(projects);
+    items[index] = updated;
+    await writeCollection(collection, items);
 
-    // Clean up files that were removed from this project.
+    // Clean up files that were removed from this item.
     const kept = new Set(mediaOf(updated));
     await deleteUploads(mediaOf(previous).filter((url) => !kept.has(url)));
 
@@ -176,28 +221,15 @@ app.put("/api/projects/:id", requireAdmin, async (req, res, next) => {
   }
 });
 
-app.put("/api/projects-order", requireAdmin, async (req, res, next) => {
+app.delete("/api/:collection/:id", requireAdmin, collectionParam, async (req, res, next) => {
   try {
-    const ids = Array.isArray(req.body?.ids) ? req.body.ids.map(String) : [];
-    const projects = await readProjects();
-    const byId = new Map(projects.map((project) => [String(project.id), project]));
-    const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
-    const rest = projects.filter((project) => !ids.includes(String(project.id)));
-    await writeProjects([...ordered, ...rest]);
-    res.json({ ok: true });
-  } catch (error) {
-    next(error);
-  }
-});
+    const { collection, id } = req.params;
+    const items = await readCollection(collection);
+    const item = items.find((entry) => String(entry.id) === id);
+    if (!item) return res.status(404).json({ error: "Not found." });
 
-app.delete("/api/projects/:id", requireAdmin, async (req, res, next) => {
-  try {
-    const projects = await readProjects();
-    const project = projects.find((item) => String(item.id) === req.params.id);
-    if (!project) return res.status(404).json({ error: "Project not found." });
-
-    await writeProjects(projects.filter((item) => item !== project));
-    await deleteUploads(mediaOf(project));
+    await writeCollection(collection, items.filter((entry) => entry !== item));
+    await deleteUploads(mediaOf(item));
     res.json({ ok: true });
   } catch (error) {
     next(error);

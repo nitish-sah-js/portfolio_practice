@@ -36,29 +36,29 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
   return data;
 }
 
-export const fetchProjects = () => request("/api/projects");
-
 export const login = (password) =>
   request("/api/login", { method: "POST", body: { password } });
 
-export const createProject = (project) =>
-  request("/api/projects", { method: "POST", body: project, auth: true });
+// Each editable homepage section ("projects", "services") shares the same endpoints.
+function collectionApi(collection) {
+  const base = `/api/${collection}`;
+  return {
+    list: () => request(base),
+    create: (item) => request(base, { method: "POST", body: item, auth: true }),
+    update: (id, item) =>
+      request(`${base}/${encodeURIComponent(id)}`, { method: "PUT", body: item, auth: true }),
+    remove: (id) =>
+      request(`${base}/${encodeURIComponent(id)}`, { method: "DELETE", auth: true }),
+    reorder: (ids) =>
+      request(`${base}/order`, { method: "PUT", body: { ids }, auth: true }),
+  };
+}
 
-export const updateProject = (id, project) =>
-  request(`/api/projects/${encodeURIComponent(id)}`, {
-    method: "PUT",
-    body: project,
-    auth: true,
-  });
+export const projectsApi = collectionApi("projects");
+export const servicesApi = collectionApi("services");
 
-export const deleteProject = (id) =>
-  request(`/api/projects/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    auth: true,
-  });
-
-export const reorderProjects = (ids) =>
-  request("/api/projects-order", { method: "PUT", body: { ids }, auth: true });
+export const fetchProjects = projectsApi.list;
+export const fetchServices = servicesApi.list;
 
 export async function uploadFiles(files) {
   const form = new FormData();

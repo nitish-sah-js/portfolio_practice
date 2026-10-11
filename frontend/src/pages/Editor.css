@@ -480,3 +480,86 @@
     padding: 10px 14px;
   }
 }
+
+/* Tabs */
+
+.editor-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.editor-tab {
+  padding: 12px 22px;
+  border: 1px solid #303030;
+  border-radius: 4px;
+  background: transparent;
+  color: #d0d0d0;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.editor-tab:hover,
+.editor-tab.active {
+  border-color: #c8ff42;
+  background: #c8ff42;
+  color: #101010;
+}
+
+.editor-tab:focus-visible,
+.editor-icon:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* Services editor */
+
+.editor-stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 35px;
+}
+
+.editor-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 8px;
+}
+
+.editor-icon {
+  display: grid;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid #303030;
+  border-radius: 4px;
+  background: transparent;
+  color: #c8ff42;
+  transition: all 0.2s ease;
+}
+
+.editor-icon:hover {
+  border-color: #c8ff42;
+}
+
+.editor-icon.active {
+  border-color: #c8ff42;
+  background: #c8ff42;
+  color: #111111;
+}
+
+/* Completes the outer border that .services-grid normally draws */
+.editor-service-preview {
+  max-width: 400px;
+  border-top: 1px solid #303030;
+  border-left: 1px solid #303030;
+}
+
+.editor-item-icon {
+  aspect-ratio: auto;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #363636;
+  border-radius: 4px;
+  background: transparent;
+}

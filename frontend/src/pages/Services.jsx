@@ -1,8 +1,22 @@
+import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { services } from "../data/services";
+import { services as fallbackServices } from "../data/services";
+import { ServiceIcon } from "../data/serviceIcons";
+import { fetchServices } from "../data/api";
 import "./Services.css";
 
 export default function Services() {
+  const [services, setServices] = useState(fallbackServices);
+
+  // Load services edited in /editor; keep the built-in list if the backend is offline.
+  useEffect(() => {
+    fetchServices()
+      .then((data) => {
+        if (Array.isArray(data)) setServices(data);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="services-section" id="services">
       <div className="services-heading">
@@ -24,13 +38,11 @@ export default function Services() {
 
       <div className="services-grid">
         {services.map((service, index) => {
-          const Icon = service.icon;
-
           return (
             <article className="service-card" key={service.id}>
               <div className="service-card-top">
                 <span className="service-icon">
-                  <Icon size={25} strokeWidth={1.6} />
+                  <ServiceIcon name={service.icon} size={25} strokeWidth={1.6} />
                 </span>
 
                 <span className="service-number">

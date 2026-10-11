@@ -1,0 +1,56 @@
+[
+  {
+    "id": "1",
+    "title": "Reels & Shorts",
+    "category": "SOCIAL MEDIA",
+    "description": "Engaging short videos with smooth transitions, captions, effects, and beat synchronization.",
+    "startingPrice": "₹499",
+    "icon": "Smartphone",
+    "createdAt": "2026-10-11T16:30:16.970Z"
+  },
+  {
+    "id": "2",
+    "title": "YouTube Editing",
+    "category": "CONTENT CREATION",
+    "description": "Professional YouTube videos with clean cuts, subtitles, sound design, and engaging storytelling.",
+    "startingPrice": "₹999",
+    "icon": "Clapperboard",
+    "createdAt": "2026-10-11T16:30:16.971Z"
+  },
+  {
+    "id": "3",
+    "title": "Cinematic Films",
+    "category": "VISUAL STORYTELLING",
+    "description": "Beautiful cinematic edits with color grading, sound design, and carefully crafted transitions.",
+    "startingPrice": "₹1,499",
+    "icon": "Film",
+    "createdAt": "2026-10-11T16:30:16.971Z"
+  },
+  {
+    "id": "4",
+    "title": "Wedding Films",
+    "category": "SPECIAL MOMENTS",
+    "description": "Emotional wedding highlights and memorable films that preserve important moments.",
+    "startingPrice": "₹2,499",
+    "icon": "Heart",
+    "createdAt": "2026-10-11T16:30:16.971Z"
+  },
+  {
+    "id": "5",
+    "title": "Commercial Videos",
+    "category": "BRAND CONTENT",
+    "description": "Creative advertisements and promotional videos designed to showcase products and brands.",
+    "startingPrice": "₹1,999",
+    "icon": "Megaphone",
+    "createdAt": "2026-10-11T16:30:16.971Z"
+  },
+  {
+    "id": "6",
+    "title": "Color Grading",
+    "category": "POST-PRODUCTION",
+    "description": "Enhance your footage with consistent colors, cinematic tones, and professional finishing.",
+    "startingPrice": "₹799",
+    "icon": "Palette",
+    "createdAt": "2026-10-11T16:30:16.971Z"
+  }
+]
